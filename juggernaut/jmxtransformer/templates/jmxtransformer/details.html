@@ -1,0 +1,11 @@
+{% extends 'jmxtransformer/base.html' %}
+{% load bootstrap4 %}  
+
+
+{% block content %}
+    <h1>{{ jmx.name }}</h1>
+    <p class="lead">
+        File location: {{ jmx.jmxfile }}
+    </p>
+{% endblock content %}
+    

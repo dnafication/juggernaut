@@ -97,3 +97,5 @@ db.sqlite3
 # vscode
 .vscode/
 .vscode/
+juggernaut/jmxes/
+backend/support/include/
