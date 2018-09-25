@@ -1,5 +1,12 @@
 import xml.etree.ElementTree as etree
 
+# Some handy functions to find property text from jmx file
+def get_string_prop(tg, name):
+    """internal method to return a string property"""
+    return str(tg.find(".//stringProp[@name='{}']".format(name)).text)
+
+def get_bool_prop(tg, name):
+    return str(tg.find(".//boolProp[@name='{}']".format(name)).text)
 
 class JmxHandler():
     """
@@ -10,7 +17,7 @@ class JmxHandler():
         self.filelocation = filelocation
         self.tree = etree.parse(self.filelocation)
         self.root = self.tree.getroot()
-        self.tg_list = self.root.iter('ThreadGroup')
+        self.tg_list = list(self.root.iter('ThreadGroup'))
 
     def get_tg(self, name):
         """returns the ThreadGroup element/node based on name in the argument
@@ -40,18 +47,12 @@ class JmxHandler():
         tg_dict = {}
         for tg in self.tg_list:
             tg_dict[tg.attrib['testname']] = {
-                "thread": self.__get_string_prop(tg, 'ThreadGroup.num_threads'),
-                "loop": self.__get_string_prop(tg, ''),
-                "delay": str(tg)
+                "threads": get_string_prop(tg, 'ThreadGroup.num_threads'),
+                "loops": get_string_prop(tg, 'LoopController.loops')
                 }
+
+        return tg_dict
         
-
-    def __get_string_prop(self, tg, name):
-        return str(tg.find(".//stringProp[@name='{}']".format(name)).text)
-
-    def __get_bool_prop(self, tg, name):
-        return str(tg.find(".//boolProp[@name='{}']".format(name)).text)
-
 
     def set_thread_count(self, name, count=1):
         """set the thread count of a particular tg"""
@@ -115,7 +116,8 @@ if __name__ == "__main__":
     j.set_delay('B2B060_MAP_AppointmentAvailability', 1030)
     j.set_duration('B2B060_MAP_AppointmentAvailability', 1030)
     j.set_loops('B2B060_MAP_AppointmentAvailability', 1300)
-    j.save_as('updated.jmx')
+    j.get_tg_as_dict()
+    # j.save_as('updated.jmx')
 
 
 
