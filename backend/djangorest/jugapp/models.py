@@ -1,7 +1,15 @@
 from django.db import models
 
 
-class Script(models.Model):
+class BaseModel(models.Model):
+    created = models.DateTimeField("created date", auto_now_add=True)
+    updated = models.DateTimeField("last updated", auto_now=True)
+    author = models.CharField(max_length=50)
+
+    class Meta:
+        abstract=True
+
+class Script(BaseModel):
     name = models.CharField(
         max_length=25,
         unique=True,
@@ -11,7 +19,7 @@ class Script(models.Model):
             'invalid': 'invalid choice',
             'unique': 'it has to be unique, the name entered already exists'
         },
-        help_text="name of the script"
+        help_text="Name of the script"
     )
     # file will be uploaded to MEDIA_ROOT/uploads
     script_upload = models.FileField(
@@ -19,21 +27,24 @@ class Script(models.Model):
         unique=True,
         verbose_name='Script Upload Location'
     )
-    version = models.IntegerField("Script's version", blank=True, null=True)
+    version = models.IntegerField("script's version", blank=True, null=True)
+
 
     def __str__(self):
         return self.name
 
 
-class Host(models.Model):
+class Host(BaseModel):
     name = models.CharField(max_length=25, blank=True, null=True)
-    ip_address = models.CharField(max_length=15)
+    ip_address = models.GenericIPAddressField(
+        "Host IP Address", protocol="IPv4")
+    is_active = models.BooleanField()
 
     def __str__(self):
         return self.name
 
 
-class Test(models.Model):
+class Test(BaseModel):
     name = models.CharField(
         max_length=25,
         blank=False, null=False,
@@ -44,11 +55,12 @@ class Test(models.Model):
             'invalid': 'invalid choice',
             'unique': 'the name entered already exists'
         },
-        help_text="name of the test"
-    )
+        help_text="name of the test")
     scripts = models.ManyToManyField(
         Script, through='Mapping',
         through_fields=('test', 'script'))
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
 
     def __str__(self):
         return self.name
