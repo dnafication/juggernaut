@@ -27,7 +27,7 @@ router = routers.DefaultRouter()
 
 router.register(r'scripts', views.ScriptViewSet)
 router.register(r'hosts', views.HostViewSet)
-router.register(r'mappings', views.ScriptHostMappingViewSet)
+router.register(r'mappings', views.MappingViewSet)
 router.register(r'tests', views.TestViewSet)
 
 urlpatterns = [

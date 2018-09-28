@@ -45,19 +45,32 @@ class Test(models.Model):
         },
         help_text="name of the test"
     )
-    # mapping = models.OneToOneField(ScriptHostMapping, on_delete=models.CASCADE)
+    scripts = models.ManyToManyField(
+        Script, through='Mapping', 
+        through_fields=('test', 'script'))
 
     def __str__(self):
         return self.name
 
 
-class ScriptHostMapping(models.Model):
+class Mapping(models.Model):
+    test = models.ForeignKey(Test, on_delete=models.CASCADE)
     script = models.ForeignKey(Script, on_delete=models.CASCADE)
     host = models.ForeignKey(Host, on_delete=models.CASCADE)
-    test = models.ForeignKey(Test, on_delete=models.CASCADE)
-
+    comment = models.CharField(max_length=25)
+    settings = models.CharField(max_length=500)
+    
     def __str__(self):
-        return "Mapping {} {}".format(self.script, self.host)
+        return "Mapping for {} - {}".format(self.test, self.script)
+
+
+# class ScriptHostMapping(models.Model):
+#     script = models.ForeignKey(Script, on_delete=models.CASCADE)
+#     host = models.ForeignKey(Host, on_delete=models.CASCADE)
+#     test = models.ForeignKey(Test, on_delete=models.CASCADE)
+
+#     def __str__(self):
+#         return "Mapping {} {}".format(self.script, self.host)
 
 
 
