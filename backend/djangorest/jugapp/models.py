@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Script(models.Model):
     name = models.CharField(
         max_length=25,
@@ -8,7 +9,7 @@ class Script(models.Model):
         error_messages={
             'blank': 'cant be blank',
             'invalid': 'invalid choice',
-            'unique': 'it has to be unique, the name entered already exists' 
+            'unique': 'it has to be unique, the name entered already exists'
         },
         help_text="name of the script"
     )
@@ -41,12 +42,12 @@ class Test(models.Model):
         error_messages={
             'blank': 'cant be blank',
             'invalid': 'invalid choice',
-            'unique': 'the name entered already exists' 
+            'unique': 'the name entered already exists'
         },
         help_text="name of the test"
     )
     scripts = models.ManyToManyField(
-        Script, through='Mapping', 
+        Script, through='Mapping',
         through_fields=('test', 'script'))
 
     def __str__(self):
@@ -59,9 +60,14 @@ class Mapping(models.Model):
     host = models.ForeignKey(Host, on_delete=models.CASCADE)
     comment = models.CharField(max_length=25)
     settings = models.CharField(max_length=500)
-    
+
     def __str__(self):
         return "Mapping for {} - {}".format(self.test, self.script)
+
+    @property
+    def mapping_name(self):
+        "Returns the name given to the mapping "
+        return "{} {}".format(self.script, self.host)
 
 
 # class ScriptHostMapping(models.Model):
@@ -71,9 +77,3 @@ class Mapping(models.Model):
 
 #     def __str__(self):
 #         return "Mapping {} {}".format(self.script, self.host)
-
-
-
-
-
-
