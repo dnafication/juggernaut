@@ -40,6 +40,9 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'jugapp.apps.JugappConfig',
+
+    # only for dev server
+    'corsheaders', 
 ]
 
 MIDDLEWARE = [
@@ -50,6 +53,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # only for dev server
+    'corsheaders.middleware.CorsMiddleware', 
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'djangorest.urls'
@@ -123,6 +130,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
+# only for dev server
 # https://docs.djangoproject.com/en/2.1/howto/static-files/#serving-files-uploaded-by-a-user-during-development
-MEDIA_ROOT = '/media/' #c:/media/
+MEDIA_ROOT = '/media/' #c:/media/ 
 MEDIA_URL = '/media/' 
+
+CORS_ORIGIN_ALLOW_ALL = True
