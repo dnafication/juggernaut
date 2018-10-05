@@ -6,3 +6,4 @@ There are so many options to choose from.
 - https://cssauthor.com/reactjs-admin-themes/ (All)
 - Creative Tim
 - Material UI
+- I might go with Material UI and react-table. 

@@ -5,13 +5,13 @@ from rest_framework import serializers
 class ScriptSerielizer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Script
-        fields = ('url', 'name', 'script_upload')
+        fields = ('url', 'name', 'script_upload', 'status', )
 
 
 class HostSerielizer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Host
-        fields = ('url', 'name', 'ip_address')
+        fields = ('url', 'name', 'ip_address', 'is_active')
 
 
 class MappingSerielizer(serializers.HyperlinkedModelSerializer):
@@ -23,4 +23,4 @@ class MappingSerielizer(serializers.HyperlinkedModelSerializer):
 class TestSerielizer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Test
-        fields = ('url', 'name', 'scripts')
+        fields = ('url', 'name', 'scripts', 'status', 'start_time', 'end_time')
