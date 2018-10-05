@@ -1,15 +1,34 @@
 from django.db import models
+from django.utils import timezone
 
 
 class BaseModel(models.Model):
-    created = models.DateTimeField("created date", auto_now_add=True)
-    updated = models.DateTimeField("last updated", auto_now=True)
-    author = models.CharField(max_length=50)
+    "juggernaut: base model for common fields"
+    created = models.DateTimeField(
+        "created date", auto_now_add=True, 
+        # default=timezone.now
+        )
+    updated = models.DateTimeField(
+        "last updated", auto_now=True, 
+        # default=timezone.now
+        )
+    author = models.CharField(max_length=50, default="author name")
 
     class Meta:
-        abstract=True
+        abstract = True
+
 
 class Script(BaseModel):
+    "model for script list"
+    STATUS_CHOICES = (
+        (None, 'Unknown'),
+        ('uploaded', 'Uploaded'),
+        ('pip', 'Parse In Progress'),
+        ('parsed', 'Parsed'),
+        ('vip', 'Validation In Progress'),
+        ('eip', 'Edit in Progress'),
+        ('ready', 'Ready'),
+    )
     name = models.CharField(
         max_length=25,
         unique=True,
@@ -27,11 +46,15 @@ class Script(BaseModel):
         unique=True,
         verbose_name='Script Upload Location'
     )
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default=None,
+        blank=True, null=True)
     version = models.IntegerField("script's version", blank=True, null=True)
 
-
     def __str__(self):
-        return self.name
+        return "Script: {}".format(self.name)
 
 
 class Host(BaseModel):
@@ -41,10 +64,17 @@ class Host(BaseModel):
     is_active = models.BooleanField()
 
     def __str__(self):
-        return self.name
+        return "Host: {}".format(self.name)
 
 
 class Test(BaseModel):
+    STATUS_CHOICES = (
+        (None, 'Unknown'),
+        ('created', 'Created'),
+        ('eip', 'Edit in Progress'),
+        ('ready', 'Ready'),
+        ('tip', 'Test In Progress'),
+    )
     name = models.CharField(
         max_length=25,
         blank=False, null=False,
@@ -59,11 +89,17 @@ class Test(BaseModel):
     scripts = models.ManyToManyField(
         Script, through='Mapping',
         through_fields=('test', 'script'))
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    start_time = models.DateTimeField(blank=True, null=True)
+    end_time = models.DateTimeField(blank=True, null=True)
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default=None,
+        blank=True, null=True
+    )
 
     def __str__(self):
-        return self.name
+        return "Test: {}".format(self.name)
 
 
 class Mapping(models.Model):
@@ -80,6 +116,39 @@ class Mapping(models.Model):
     def mapping_name(self):
         "Returns the name given to the mapping "
         return "{} {}".format(self.script, self.host)
+
+
+class ThreadGroup(BaseModel):
+    "thred group details of the script after getting parsed"
+    script = models.ForeignKey(Script, on_delete=models.CASCADE)
+
+    # thread level attributes
+    enabled = models.BooleanField(null=True)
+    tg_name = models.CharField(max_length=30, blank=True, null=True)
+    num_threads = models.IntegerField(blank=True, null=True)
+    on_sample_error = models.CharField(max_length=10, blank=True, null=True)
+    continue_forever = models.BooleanField(null=True)
+    loops = models.CharField(max_length=6, blank=True, null=True)
+    ramp_time = models.CharField(max_length=7, blank=True, null=True)
+    scheduler = models.BooleanField(null=True)
+    duration = models.CharField(max_length=7, blank=True, null=True)
+    delay = models.CharField(max_length=7, blank=True, null=True)
+
+    def __str__(self):
+        return "ThreadGroup details for {}: {}".format(self.script, self.tg_name)
+
+
+class Argument(BaseModel):
+    "user defined variables related to script after getting parsed"
+    script = models.ForeignKey(Script, on_delete=models.CASCADE)
+
+    argument_name = models.CharField(max_length=30, blank=True, null=True)
+    key = models.CharField(max_length=50, blank=True, null=True)
+    value = models.CharField(max_length=100, blank=True, null=True)
+    metadata = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return "Argument details for {}".format(self.script)
 
 
 # class ScriptHostMapping(models.Model):
