@@ -1,5 +1,17 @@
 import xml.etree.ElementTree as etree
 
+def get_tg_details_table(tg):
+        "passs in tg element and it will traverse and return a dictionary with details"
+        tg_dict = {}
+        tg_dict.update(tg.attrib)
+        for element in tg.getchildren():
+            if element.tag == "elementProp":
+                for e in element:
+                    tg_dict[e.attrib['name']] = e.text
+            else:
+                tg_dict[element.attrib['name']] = element.text
+        print("{} - {} - {}".format(tg_dict['testname'], tg_dict['enabled'], tg_dict['ThreadGroup.num_threads']))
+
 class JmxHandler():
     """
     A go to class for JMX file interpretation and modification
@@ -146,9 +158,9 @@ class JmxHandler():
     
 
 if __name__ == "__main__":
-    j = JmxHandler("C:\Temp\B2B_Main_Group_001.jmx")
-
-
+    j = JmxHandler("C:/tmp/SP_Main.jmx")
+    for tg in j.get_tg_list():
+        get_tg_details_table(tg)
 
 
 '''
