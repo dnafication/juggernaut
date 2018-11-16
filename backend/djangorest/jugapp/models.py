@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from .taurus import main
 
 
 class BaseModel(models.Model):
@@ -19,15 +20,16 @@ class BaseModel(models.Model):
 
 
 class Script(BaseModel):
-    "model for script list"
+    "model to represent script and its states"
+
+    UNKNOWN, UPLOADED, PARSING, VALIDATING, READY = range(5)
+
     STATUS_CHOICES = (
-        (None, 'Unknown'),
-        ('uploaded', 'Uploaded'),
-        ('pip', 'Parse In Progress'),
-        ('parsed', 'Parsed'),
-        ('vip', 'Validation In Progress'),
-        ('eip', 'Edit in Progress'),
-        ('ready', 'Ready'),
+        (UNKNOWN, 'Unknown'),
+        (UPLOADED, 'Uploaded'),
+        (PARSING, 'Parsing'),
+        (VALIDATING, 'Validating'),
+        (READY, 'Ready'),
     )
     name = models.CharField(
         max_length=25,
@@ -49,12 +51,19 @@ class Script(BaseModel):
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
-        default=None,
+        default=UNKNOWN,
         blank=True, null=True)
     version = models.IntegerField("script's version", blank=True, null=True)
 
     def __str__(self):
         return "Script: {}".format(self.name)
+    
+    def validate(self):
+        "validate the script with simple settings"
+        self.status = Script.VALIDATING
+        configs = [self.script_upload.path]
+        main(configs)
+        self.save()
 
 
 class Host(BaseModel):
@@ -68,12 +77,15 @@ class Host(BaseModel):
 
 
 class Test(BaseModel):
+    UNKNOWN, CREATED, READY, STARTED, STOPPED, ANALYSIS = range(6)
+
     STATUS_CHOICES = (
-        (None, 'Unknown'),
-        ('created', 'Created'),
-        ('eip', 'Edit in Progress'),
-        ('ready', 'Ready'),
-        ('tip', 'Test In Progress'),
+        (UNKNOWN, 'Unknown'),
+        (CREATED, 'Created'),
+        (READY, 'Ready'),
+        (STARTED, 'Started'),
+        (STOPPED, 'Stopped'),
+        (ANALYSIS, 'Analysis'),
     )
     name = models.CharField(
         max_length=25,
@@ -91,10 +103,16 @@ class Test(BaseModel):
         through_fields=('test', 'script'))
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
+    event_log = models.TextField(
+        verbose_name='latest event',
+        blank=True, null=True,
+        max_length=256,
+        help_text='details of on going event - to be used in conjunction with status'
+    )
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
-        default=None,
+        default=UNKNOWN,
         blank=True, null=True
     )
 
@@ -119,7 +137,7 @@ class Mapping(models.Model):
 
 
 class ThreadGroup(BaseModel):
-    "thred group details of the script after getting parsed"
+    "thread group details of the script after getting parsed"
     script = models.ForeignKey(Script, on_delete=models.CASCADE)
 
     # thread level attributes

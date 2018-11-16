@@ -21,19 +21,7 @@ from rest_framework import routers
 from jugapp import views
 from djangorest import settings
 
-router = routers.DefaultRouter()
-# router.register(r'users', views.UserViewSet)
-# router.register(r'groups', views.GroupViewSet)
-
-router.register(r'scripts', views.ScriptViewSet)
-router.register(r'hosts', views.HostViewSet)
-router.register(r'mappings', views.MappingViewSet)
-router.register(r'tests', views.TestViewSet)
-
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include(router.urls)),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-
-
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('', include('jugapp.urls')),
+] 

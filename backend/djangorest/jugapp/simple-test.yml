@@ -1,0 +1,13 @@
+---
+execution:
+- concurrency: 2
+  ramp-up: 1m
+  hold-for: 5m30s
+  scenario: simple
+
+scenarios:
+  simple:
+    think-time: 10
+    requests:
+    - http://blazedemo.com/
+    - http://blazedemo.com/vacation.html
