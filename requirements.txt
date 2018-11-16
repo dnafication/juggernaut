@@ -2,3 +2,6 @@ Django==2.1
 django-bootstrap4==0.0.6
 djangorestframework==3.8.2
 django-cors-headers==2.4.0
+bzt==1.13.0
+celery==4.2.1
+celery[redis]==4.2.1
