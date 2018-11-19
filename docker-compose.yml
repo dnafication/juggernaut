@@ -15,5 +15,6 @@ services:
     depends_on:
       - db
 
-
+  redis:
+    image: redis -- need to work on this.
     
